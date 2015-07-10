@@ -25,5 +25,26 @@ public partial class pages_selectCourse : WebBasePage
             Response.Write(jsonResult);
             Response.End();
         }
+        else if (Request.Params["Action"].ConvertToString() == "LoadStudentInfo")
+        {
+            var stu = StudentService.LoadStudentInfo(CurrentUser.RelatedPerson);
+            //生成viewmodel
+            //匿名对象new{}
+            var q = from s in stu.Attends
+                    select new
+                    {
+                        id = s.SectionNumber,
+                        text = "{0} {1} {2}".FormatWith(s.RepresentedCourse.CourseNumber, s.RepresentedCourse.CourseName, s.TimeOfDay, s.Room)
+                    };
+            var stuView = new
+            {
+                Id = stu.Id,
+                Name = stu.Name,
+                Attends = q.ToList()
+            };
+            string jsonResult = JSONHelper.ToJson(stuView);
+            Response.Write(jsonResult);
+            Response.End();
+        }
     }
 }
